@@ -18,7 +18,7 @@ class KMeans:
     """
     Unsupervised clustering algortihm.
     """
-    def __init__(self, n_centroids):
+    def __init__(self, n_centroids=5):
         self.n_centroids = n_centroids
 
         self.centroids = []
@@ -42,10 +42,7 @@ class KMeans:
         self.X = X
         for epoch in range(epochs):
             for point in X:
-                distances = {}
-                for centroid in self.centroids:
-                    distances[centroid] = self._euclidean_distance(centroid.pos, point)
-                closest = min(distances.items(), key=operator.itemgetter(1))[0]
+                closest = self.assign_centroid(point)
                 closest.points.append(point)
 
             self._update_centroids() if epoch != epochs - 1 else self._update_centroids(reset=False)
@@ -73,9 +70,10 @@ class KMeans:
         dist = np.linalg.norm(a-b)
         return dist
 
+
     def show(self):
         """
-        Displays clustering.
+        Displays clustering, saves plot to {title}.png.
         """
 
         for i, c in enumerate(self.centroids):
@@ -84,24 +82,33 @@ class KMeans:
             y_cors = [y[1] for y in c.points]
             plt.scatter(x_cors, y_cors, marker='.', color=c.color)
 
-        title = 'k_means'
+        title = 'K-Means'
         plt.xlabel('X')
         plt.ylabel('Y')
         plt.title(title)
-        
         plt.savefig('{}.png'.format(title))
-
         plt.show()
+
+
+    def assign_centroid(self, x):
+        """
+        Returns centroid closest to point.
+        """
+        distances = {}
+        for centroid in self.centroids:
+            distances[centroid] = self._euclidean_distance(centroid.pos, x)
+        closest = min(distances.items(), key=operator.itemgetter(1))[0]
+        return closest
 
 
 if __name__ == '__main__':
 
     # sample data
     r = lambda: np.random.randint(1, 100)
-    X = [[r(), r()] for _ in range(100)]
+    X = [[r(), r()] for _ in range(25)]
 
     # K-Means instance
-    kmeans = KMeans(4)
+    kmeans = KMeans(n_centroids=3)
     kmeans.fit(X, epochs=5)
     kmeans.show()
 
