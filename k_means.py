@@ -84,20 +84,24 @@ class KMeans:
             y_cors = [y[1] for y in c.points]
             plt.scatter(x_cors, y_cors, marker='.', color=c.color)
 
+        title = 'k_means'
         plt.xlabel('X')
         plt.ylabel('Y')
-        plt.title('K-Means')
+        plt.title(title)
+        
+        plt.savefig('{}.png'.format(title))
+
         plt.show()
 
 
 if __name__ == '__main__':
+
     # sample data
     r = lambda: np.random.randint(1, 100)
-    X = [[r(), r()] for _ in range(25)]
+    X = [[r(), r()] for _ in range(100)]
 
     # K-Means instance
-    kmeans = KMeans(3)
+    kmeans = KMeans(4)
     kmeans.fit(X, epochs=5)
     kmeans.show()
-    #[print(centroid.points) for centroid in kmeans.centroids]
 
