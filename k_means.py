@@ -11,6 +11,7 @@ class Centroid:
     def __init__(self, pos):
         self.pos = pos
         self.points = []
+        self.previous_points = []
         self.color = None
 
 
@@ -40,18 +41,28 @@ class KMeans:
         Calls to update centroid mean to reflect mean of assigned points.
         """
         self.X = X
-        for epoch in range(epochs):
+        self.n_iters = 0
+        not_fit = True 
+        while not_fit:
             for point in X:
                 closest = self.assign_centroid(point)
                 closest.points.append(point)
 
-            self._update_centroids() if epoch != epochs - 1 else self._update_centroids(reset=False)
+            if len([c for c in self.centroids if c.points == c.previous_points]) == self.n_centroids:
+                not_fit = False
+                self._update_centroids(reset=False)
+            else:
+                self._update_centroids()
+
+            self.n_iters += 1
+
     
     def _update_centroids(self, reset=True):
         """
         Updates centroid position based on mean of assigned points.
         """
         for centroid in self.centroids:
+            centroid.previous_points = centroid.points
             x_cor = [x[0] for x in centroid.points]
             y_cor = [y[0] for y in centroid.points]
             try:
@@ -105,10 +116,11 @@ if __name__ == '__main__':
 
     # sample data
     r = lambda: np.random.randint(1, 100)
-    X = [[r(), r()] for _ in range(25)]
+    X = [[r(), r()] for _ in range(50)]
 
     # K-Means instance
-    kmeans = KMeans(n_centroids=3)
+    kmeans = KMeans(n_centroids=5)
     kmeans.fit(X, epochs=5)
+    print('Iterations: {0}'.format(kmeans.n_iters))
     kmeans.show()
 
