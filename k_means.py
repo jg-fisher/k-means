@@ -34,20 +34,29 @@ class KMeans:
         for i, c in enumerate(self.centroids):
             c.color = colors[i]
 
-
-    def fit(self, X, epochs=10):
+    def sample_data(self):
         """
+        Generates sample data assings to self.X
+        """
+        r = lambda: np.random.randint(1, 100)
+        self.X = [[r(), r()] for _ in range(50)]
+        return self.X
+
+
+    def fit(self):
+        """
+        Fits points in self.X
         Assigns points to centroids.
         Calls to update centroid mean to reflect mean of assigned points.
         """
-        self.X = X
         self.n_iters = 0
         not_fit = True 
         while not_fit:
-            for point in X:
+            for point in self.X:
                 closest = self.assign_centroid(point)
                 closest.points.append(point)
 
+            # if points do not change assignment
             if len([c for c in self.centroids if c.points == c.previous_points]) == self.n_centroids:
                 not_fit = False
                 self._update_centroids(reset=False)
@@ -113,14 +122,9 @@ class KMeans:
 
 
 if __name__ == '__main__':
-
-    # sample data
-    r = lambda: np.random.randint(1, 100)
-    X = [[r(), r()] for _ in range(50)]
-
-    # K-Means instance
     kmeans = KMeans(n_centroids=5)
-    kmeans.fit(X, epochs=5)
+    kmeans.sample_data()
+    kmeans.fit()
     print('Iterations: {0}'.format(kmeans.n_iters))
     kmeans.show()
 
