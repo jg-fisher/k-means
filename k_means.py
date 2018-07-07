@@ -38,8 +38,8 @@ class KMeans:
         """
         Generates sample data assings to self.X
         """
-        r = lambda: np.random.randint(1, 100)
-        self.X = [[r(), r()] for _ in range(50)]
+        r = lambda x, y: np.random.randint(x, y)
+        self.X = [[r(0, 100), r(0, 100)] for _ in range(50)]
         return self.X
 
 
@@ -73,7 +73,7 @@ class KMeans:
         for centroid in self.centroids:
             centroid.previous_points = centroid.points
             x_cor = [x[0] for x in centroid.points]
-            y_cor = [y[0] for y in centroid.points]
+            y_cor = [y[1] for y in centroid.points]
             try:
                 centroid.pos[0] = sum(x_cor)/len(x_cor)
                 centroid.pos[1] = sum(y_cor)/len(y_cor)
