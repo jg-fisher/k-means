@@ -3,6 +3,8 @@ import operator
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
+r = lambda: np.random.randint(1, 100)
+
 class Centroid:
     """
     pos    = [x, y] coordinate array
@@ -14,18 +16,15 @@ class Centroid:
         self.previous_points = []
         self.color = None
 
-
 class KMeans:
     """
     Unsupervised clustering algortihm.
     """
     def __init__(self, n_centroids=5):
         self.n_centroids = n_centroids
-
         self.centroids = []
 
         # generate initial centroids
-        r = lambda: np.random.randint(1, 100)
         for _ in range(n_centroids):
             self.centroids.append(Centroid(np.array([r(), r()])))
         
@@ -34,14 +33,11 @@ class KMeans:
         for i, c in enumerate(self.centroids):
             c.color = colors[i]
 
-    def sample_data(self):
+    def sample_data(self, samples=50):
         """
         Generates sample data assings to self.X
         """
-        r = lambda x, y: np.random.randint(x, y)
-        self.X = [[r(0, 100), r(0, 100)] for _ in range(50)]
-        return self.X
-
+        self.X = [[r(), r()] for _ in range(samples)]
 
     def fit(self):
         """
@@ -50,22 +46,33 @@ class KMeans:
         Calls to update centroid mean to reflect mean of assigned points.
         """
         self.n_iters = 0
-        not_fit = True 
-        while not_fit:
+        fit = False 
+        while not fit:
             for point in self.X:
                 closest = self.assign_centroid(point)
                 closest.points.append(point)
 
-            # if points do not change assignment
+            # if length of array of centroids that did not change == number of centroids
             if len([c for c in self.centroids if c.points == c.previous_points]) == self.n_centroids:
-                not_fit = False
+                fit = True
                 self._update_centroids(reset=False)
             else:
                 self._update_centroids()
 
             self.n_iters += 1
 
-    
+
+    def assign_centroid(self, x):
+        """
+        Returns centroid closest to point.
+        """
+        distances = {}
+        for centroid in self.centroids:
+            distances[centroid] = np.linalg.norm(centroid.pos - x)
+        closest = min(distances.items(), key=operator.itemgetter(1))[0]
+        return closest
+
+
     def _update_centroids(self, reset=True):
         """
         Updates centroid position based on mean of assigned points.
@@ -83,14 +90,6 @@ class KMeans:
             if reset:
                 centroid.points = []
         
-    def _euclidean_distance(self, a, b):
-        """
-        Returns euclidean distance between two points.
-        """
-        dist = np.linalg.norm(a-b)
-        return dist
-
-
     def show(self):
         """
         Displays clustering, saves plot to {title}.png.
@@ -109,16 +108,6 @@ class KMeans:
         plt.savefig('{}.png'.format(title))
         plt.show()
 
-
-    def assign_centroid(self, x):
-        """
-        Returns centroid closest to point.
-        """
-        distances = {}
-        for centroid in self.centroids:
-            distances[centroid] = self._euclidean_distance(centroid.pos, x)
-        closest = min(distances.items(), key=operator.itemgetter(1))[0]
-        return closest
 
 
 if __name__ == '__main__':
